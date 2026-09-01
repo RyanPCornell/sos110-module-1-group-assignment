@@ -280,6 +280,21 @@ img.bleed{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
    way down the outer columns, so it needs more gutter than the default .slide-inner */
 .ag-root{gap:0; padding-inline:clamp(3.2rem,5.8vw,5rem);}
 .ag-h{margin-bottom:.3rem;}
+/* logistics band under the title — duration / group size / tools, ruled like a lab sheet */
+.ag-meta{display:grid; grid-template-columns:auto auto 1fr;
+  border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  padding:.32rem 0; margin:.32rem 0 .48rem;}
+.ag-meta > div{min-width:0;}
+.ag-meta > div + div{padding-left:clamp(.85rem,2vw,1.7rem); margin-left:clamp(.85rem,2vw,1.7rem);
+  border-left:1px solid var(--line);}
+.ag-meta dt{font-size:.55rem; font-weight:800; letter-spacing:.15em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:.04rem;}
+.ag-meta dd{font-family:'Merriweather',serif; font-size:clamp(.64rem,.98vw,.76rem);
+  line-height:1.42; color:#2f3f38;}
+.ag-meta dd b{font-weight:700; color:var(--forest);}
+/* on its own line so a long URL never breaks mid-token */
+.ag-url{display:block; margin-top:.06rem; font-family:'Inter',sans-serif; font-weight:700;
+  font-size:.96em; color:var(--forest-mid); word-break:normal; white-space:nowrap;}
 .ag-obj{font-family:'Merriweather',serif; font-size:clamp(.78rem,1.24vw,.98rem);
   line-height:1.6; color:#2b3a34; max-width:104ch;}
 .ag-obj b{font-weight:700; color:var(--forest);}
@@ -722,9 +737,17 @@ img.bleed{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
     <div class="eyebrow">SOS 110 &nbsp;·&nbsp; Module 1 &nbsp;·&nbsp; Group Assignment</div>
     <h2 class="heading ag-h">Map a Biome as a System</h2>
 
+    <div class="ag-meta">
+      <div><dt>Duration</dt><dd>30&ndash;45 minutes</dd></div>
+      <div><dt>Group size</dt><dd>Varies &mdash; work with the students sitting around you.</dd></div>
+      <div><dt>Tools</dt><dd>Zoom Whiteboard, InsightMaker, Canva, Miro, Google Slides, or the
+        dedicated <b>Module 1 SET Builder</b> &mdash;
+        <span class="ag-url">ryanpcornell.github.io/sos110-module-1-set-builder</span></dd></div>
+    </div>
+
     <p class="ag-obj"><b>Objective.</b> Collaborate with your peers to create a one-page system
-      diagram that applies the <i>Ecosystem Approach</i> (Web of Life perspective) to a real-world
-      biome, mapping its components and a key sustainability challenge.</p>
+      diagram that explores the interconnectedness of a real-world biome, mapping its components
+      and a key sustainability challenge.</p>
 
     <div class="ag-rule"><span>Instructions</span></div>
 
@@ -738,8 +761,7 @@ img.bleed{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
 
       <div class="ag-col">
         <h3 class="ag-sh"><span class="ag-n">2.</span>Map the System &amp; Analyze a Challenge</h3>
-        <p class="ag-intro">Collaborate with the students around you and create a visual or
-          diagram that addresses:</p>
+        <p class="ag-intro">Collaborate on a single-page visual or diagram that addresses:</p>
         <p class="ag-item"><b>Ecological Characteristics:</b> Note the dominant vegetation, typical precipitation patterns, and how temperature/rainfall shape the biome.</p><p class="ag-item"><b>Trophic Levels:</b> Illustrate the food chain from producers to apex predators.</p><p class="ag-item"><b>System Interactions:</b> Use arrows to clearly link the <i>Social</i>, <i>Ecological/Natural</i>, and <i>Technological</i> components of the system.</p><p class="ag-item"><b>Sustainability Lens:</b> Identify one current challenge (e.g., deforestation, climate disruption) or opportunity (e.g., rewilding, community conservation) and propose potential solutions.</p>
       </div>
 
@@ -754,11 +776,11 @@ img.bleed{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
 
     <div class="ag-sub">
       <div class="ag-sublbl">Submission Requirements</div>
-      <p class="ag-subtext">While this is a collaborative effort, <b>every student must submit
-        their own copy</b> on Canvas before the deadline. Your submission must include
-        <b>Metadata</b> &mdash; the title of your work and your name;
-        <b>The Diagram</b> &mdash; your mapped Ecosystem Approach and summary; and an
-        <b>Explanation</b> of what the diagram shows.</p>
+      <p class="ag-subtext"><b>Every student must submit their own copy</b> on Canvas before the
+        deadline &mdash; <i>this counts as your attendance for the day.</i> Your submission must
+        include <b>Metadata</b> &mdash; the title of your work and your name;
+        <b>The Diagram</b> &mdash; your mapped Ecosystem Approach; and an
+        <b>Explanation</b> of exactly what your diagram is showing.</p>
     </div>
 
   </div>
