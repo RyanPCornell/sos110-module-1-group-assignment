@@ -278,7 +278,9 @@ img.bleed{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
 .ag-slide{background:#fcfcf9;}
 /* the deck's ‹ › nav buttons occupy the first/last 70px; this slide runs text all the
    way down the outer columns, so it needs more gutter than the default .slide-inner */
-.ag-root{gap:0; padding-inline:clamp(3.2rem,5.8vw,5rem);}
+/* the deck's ‹ › buttons take the outer 70px and its page-nav pill floats over the
+   bottom centre, so this text-to-the-edges slide reserves both gutters itself */
+.ag-root{gap:0; padding-inline:clamp(3.2rem,5.8vw,5rem); padding-bottom:2.7rem;}
 .ag-h{margin-bottom:.3rem;}
 /* logistics band under the title — duration / group size / tools, ruled like a lab sheet */
 .ag-meta{display:grid; grid-template-columns:auto auto 1fr;
