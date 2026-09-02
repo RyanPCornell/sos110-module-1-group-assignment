@@ -1253,7 +1253,9 @@ img.bleed{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
       links.forEach(function(l){
         var dx=l.b.x-l.a.x, dy=l.b.y-l.a.y, d=Math.hypot(dx,dy)||1, ux=dx/d, uy=dy/d;
         var back=links.some(function(k){return k.a===l.b&&k.b===l.a;});
-        var bow=back?26:12;
+        /* Arc long arrows more: a flat 12px bow made a cross-canvas link run straight
+           through whatever happened to sit between its two ends. */
+        var bow = back ? 26+Math.min(18,d*0.022) : Math.min(34,11+d*0.045);
         var x1=l.a.x+ux*36, y1=l.a.y+uy*36, x2=l.b.x-ux*40, y2=l.b.y-uy*40;
         var mx=(x1+x2)/2 - uy*bow, my=(y1+y2)/2 + ux*bow;
         var col=linkColor(l.p);
@@ -1352,69 +1354,76 @@ img.bleed{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
     var PRESETS={
       /* ── STARTER: a reef and the town fishing it ──
          Reinforcing: fewer sharks → higher price → bigger fleet → fewer sharks.
-         Balancing:   more sharks → higher survey → higher quota → bigger fleet → fewer sharks. */
+         Balancing:   more sharks → higher survey → higher quota → bigger fleet → fewer sharks.
+         Balancing:   more parrotfish feed more predators, which eat more parrotfish. */
       reef:{name:'Coral reef & fishing town', biome:'marine',
         veg:'Zooxanthellae inside the corals, plus turf algae and seagrass beds',
         pre:'Rainfall matters mostly as runoff — it carries sediment and nutrients onto the reef',
         tmp:'Warm and narrow, 24–29 °C; corals bleach a degree or two above the summer maximum',
-        n:[['prod',140,120,'Algae & seagrass'],
-           ['herb',140,300,'Parrotfish & urchins'],
-           ['carn',140,480,'Snapper & jacks'],
-           ['apex',360,500,'Reef sharks & grouper'],
-           ['decomp',360,110,'Bacteria & detritivores'],
-           ['climate',600,95,'Ocean temperature'],
-           ['pipe',380,300,'Wastewater treatment'],
-           ['work',690,300,'Fishing fleet'],
-           ['market',890,150,'Fish price'],
-           ['data',890,430,'Stock survey'],
-           ['gov',660,500,'Catch quota']],
+        n:[['prod',105,105,'Algae & seagrass'],
+           ['herb',95,315,'Parrotfish & urchins'],
+           ['carn',140,520,'Snapper & jacks'],
+           ['apex',375,520,'Reef sharks & grouper'],
+           ['decomp',330,95,'Bacteria & detritivores'],
+           ['climate',555,95,'Ocean temperature'],
+           ['pipe',330,300,'Wastewater treatment'],
+           ['work',700,330,'Fishing fleet'],
+           ['market',905,155,'Fish price'],
+           ['data',905,420,'Stock survey'],
+           ['gov',660,530,'Catch quota']],
         l:[[0,1,2],[1,2,2],[2,3,2],[3,4,2],
-           [5,0,-1],[6,0,1],
+           [5,0,-1],[5,1,-1],[6,0,1],
+           [1,3,1],[3,1,-1],[2,1,-1],
            [7,3,-1],[3,8,-1],[8,7,1],
            [3,9,1],[9,10,1],[10,7,1]]},
 
       /* ── STARTER: Pacific Northwest forest, fire and logging ──
          Reinforcing: fewer conifers → higher timber price → more logging → fewer conifers.
-         Balancing 1: more conifers → more dry fuel → fire → fewer conifers.
-         Balancing 2: more dry fuel → more thinning policy → less dry fuel. */
+         Balancing:   more conifers → more dry fuel → fire → fewer conifers.
+         Balancing:   more dry fuel → more thinning policy → less dry fuel.
+         Balancing:   more elk feed more wolves, which take more elk. */
       pnw:{name:'Pacific Northwest forest', biome:'tempforest',
         veg:'Douglas-fir, western hemlock and redcedar over sword fern and moss — a dense evergreen canopy',
         pre:'150–250 cm a year, nearly all of it in a wet winter; summers run dry',
         tmp:'Mild and narrow, roughly 0–27 °C, though recent heat domes have pushed far past that',
-        n:[['prod',140,130,'Conifers & understory'],
-           ['herb',140,310,'Elk & deer'],
-           ['carn',140,480,'Goshawks & coyotes'],
-           ['apex',340,500,'Wolves & cougars'],
-           ['climate',390,110,'Summer heat & drought'],
-           ['forest',450,300,'Dry fuel load'],
-           ['factory',700,430,'Logging & mills'],
-           ['market',760,190,'Timber price'],
-           ['gov',890,330,'Thinning & harvest rules']],
+        n:[['prod',105,105,'Conifers & understory'],
+           ['herb',95,315,'Elk & deer'],
+           ['carn',140,520,'Goshawks & coyotes'],
+           ['apex',375,520,'Wolves & cougars'],
+           ['climate',345,95,'Summer heat & drought'],
+           ['forest',545,300,'Dry fuel load'],
+           ['factory',720,500,'Logging & mills'],
+           ['market',760,120,'Timber price'],
+           ['gov',925,320,'Thinning & harvest rules']],
         l:[[0,1,2],[1,2,2],[2,3,2],
-           [4,5,1],[0,5,1],[5,0,-1],
+           [4,5,1],[4,0,-1],[4,1,-1],
+           [0,5,1],[5,0,-1],
+           [1,3,1],[3,1,-1],[2,1,-1],
            [6,0,-1],[0,7,-1],[7,6,1],
            [5,8,1],[8,5,-1],[8,6,-1]]},
 
       /* ── STARTER: the Sonoran Desert at the edge of Phoenix ──
-         Reinforcing 1: subdivisions ↔ freeways.
-         Reinforcing 2: heat island ↔ air-conditioning load.
-         Balancing 1:  building draws down groundwater, which limits building.
-         Balancing 2:  building makes it hotter, and heat deters building. */
+         Reinforcing: subdivisions ↔ freeways, and heat island ↔ air-conditioning.
+         Balancing:   building draws down groundwater, which limits building.
+         Balancing:   building makes it hotter, and heat deters building.
+         Balancing:   more prey feed more coyotes, which take more prey. */
       sonoran:{name:'Phoenix sprawl & the Sonoran Desert', biome:'desert',
         veg:'Saguaro, palo verde, creosote and bursage, widely spaced with bare ground between',
         pre:'About 20 cm a year, split between gentle winter rain and summer monsoon storms',
         tmp:'Summer highs above 43 °C, mild winters, and a large day-to-night swing',
-        n:[['prod',140,130,'Saguaro & creosote'],
-           ['herb',140,310,'Jackrabbits & packrats'],
-           ['carn',140,485,'Rattlesnakes & hawks'],
-           ['apex',345,505,'Coyotes & bobcats'],
-           ['house',480,300,'New subdivisions'],
-           ['road',500,500,'Freeways & arterials'],
-           ['water',420,110,'Groundwater in storage'],
-           ['climate',740,190,'Urban heat island'],
-           ['grid',890,400,'Air-conditioning load']],
+        n:[['prod',105,105,'Saguaro & creosote'],
+           ['herb',95,315,'Jackrabbits & packrats'],
+           ['carn',140,520,'Rattlesnakes & hawks'],
+           ['apex',375,520,'Coyotes & bobcats'],
+           ['house',520,305,'New subdivisions'],
+           ['road',600,520,'Freeways & arterials'],
+           ['water',350,95,'Groundwater in storage'],
+           ['climate',790,155,'Urban heat island'],
+           ['grid',925,380,'Air-conditioning load']],
         l:[[0,1,2],[1,2,2],[2,3,2],
-           [4,0,-1],[4,5,1],[5,4,1],[5,3,-1],
+           [6,0,1],[4,0,-1],[7,1,-1],
+           [1,3,1],[3,1,-1],[2,1,-1],
+           [4,5,1],[5,4,1],
            [4,6,-1],[6,4,1],
            [4,7,1],[7,4,-1],[5,7,1],
            [7,8,1],[8,7,1]]},
@@ -2059,6 +2068,7 @@ show(start);
   const splitdollars = Array.from(document.querySelectorAll('.slide.splitdollar'));
   const endows = Array.from(document.querySelectorAll('.slide.endow'));
   const captrades = Array.from(document.querySelectorAll('.slide.captrade'));
+  const inspects = Array.from(document.querySelectorAll('.slide.inspect'));
   const qafeeds = Array.from(document.querySelectorAll('.slide.qa'));
   const gridmixes = Array.from(document.querySelectorAll('.slide.gridmix'));
   const paybacks = Array.from(document.querySelectorAll('.slide.payback'));
@@ -2068,7 +2078,8 @@ show(start);
   if(!polls.length && !clouds.length && !probpolls.length && !dpolls.length && !commons.length
      && !guesses.length && !heatmaps.length && !rankings.length && !spectrums.length && !dollars.length
      && !captrades.length && !qafeeds.length && !gridmixes.length && !paybacks.length && !shifts.length
-     && !endows.length && !splitdollars.length && !guessembeds.length && !attends.length) return;
+     && !endows.length && !splitdollars.length && !guessembeds.length && !inspects.length
+     && !attends.length) return;
 
   // ---- pick a backend -----------------------------------------------------
   // Simple counts API (poll, wordcloud, dpoll votes): subscribe / bump / reset
@@ -4676,6 +4687,487 @@ show(start);
       });
     }
     backend.subscribeDoc('polls', id, function(d){ state=(d&&d.v===4)?d:{phase:'idle'}; render(); });
+  });
+
+  // ---- wire each Inspector game (adversarial pursuit, Ch 8.7) --------------
+  // Half the room runs plants (comply / cheat quietly / cheat openly), half
+  // inspects them (random / target big emitters / follow up on complaints).
+  // Both move at once, and the inspectors' MIX sets the probability each kind
+  // of cheat is caught — so there is no dominant move on either side.
+  //
+  // The teaching object is Becker (1968): deterrence = probability x penalty.
+  // The payoffs are tuned so pulling ONE lever leaves cheating just as common
+  // but drives it from open to quiet, and only pulling BOTH produces
+  // compliance. Both single-lever paths give identical numbers, which is the
+  // proof that only the product matters.
+  //
+  // Shared doc in 'polls':
+  //   { iv:1, phase:'idle'|'lobby'|'open'|'reveal'|'final', gameId, rounds, round,
+  //     cov, fine, players:{pk:ts}, roles:{pk:'p'|'i'}, choices:{rN:{pk:key}},
+  //     caught:{rN:{pk:1}}, hist:{rN:{...}} }
+  const INS_PAY  = {comply:60, quiet:85, open:100};   // revenue net of cleanup
+  const INS_GAIN = {quiet:25, open:40};               // saved vs complying
+  const INS_D = {                                     // detection before coverage
+    rand:{quiet:0.18, open:0.30},
+    big: {quiet:0.06, open:0.62},
+    comp:{quiet:0.30, open:0.28}
+  };
+  const INS_COV={off:0.5, on:1.0}, INS_FINE={off:100, on:200};
+  const INS_PMOVE=[
+    {k:'comply', n:'Comply',            d:'Run the scrubbers. Costs you $40 in cleanup.',      p:'$60'},
+    {k:'quiet',  n:'Cheat quietly',     d:'Cut cleanup back where it is hard to notice.',      p:'$85'},
+    {k:'open',   n:'Cheat openly',      d:'Skip cleanup altogether. Cheapest, and obvious.',   p:'$100'}
+  ];
+  const INS_IMOVE=[
+    {k:'rand', n:'Random spot checks',      d:'Even coverage — catches a little of everything.'},
+    {k:'big',  n:'Target the big emitters', d:'Strong against blatant violations, weak on subtle ones.'},
+    {k:'comp', n:'Follow up on complaints', d:'Strong against subtle violations near neighborhoods.'}
+  ];
+  const INS_FMT = n => '$'+Math.round(n).toLocaleString('en-US');
+  const INS_PCT = x => Math.round(x*100)+'%';
+  function insHash(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return h>>>0; }
+  function insRnd(s){ let h=insHash(s); h^=h>>>16; h=Math.imul(h,2246822507)>>>0; h^=h>>>13; h=Math.imul(h,3266489909)>>>0; h^=h>>>16; return (h>>>0)/4294967296; }
+
+  inspects.forEach(function(sec){
+    const id = sec.dataset.insId;
+    const el = s=>sec.querySelector(s);
+    const roundsIn=el('[data-ins-rounds]'), startBtn=el('[data-ins-start]'),
+      nextBtn=el('[data-ins-next]'), endBtn=el('[data-ins-end]'), finishBtn=el('[data-ins-finish]'),
+      leversBox=el('[data-ins-levers]'), statusEl=el('[data-ins-status]'),
+      joinBox=el('[data-ins-join]'), joinBtn=el('[data-ins-joinbtn]'),
+      roleCard=el('[data-ins-rolecard]'), roleTag=el('[data-ins-roletag]'),
+      roleName=el('[data-ins-rolename]'), roleDesc=el('[data-ins-roledesc]'),
+      decideBox=el('[data-ins-decide]'), promptEl=el('[data-ins-prompt]'), optsEl=el('[data-ins-opts]'),
+      submitBtn=el('[data-ins-submit]'), revealBox=el('[data-ins-reveal]'),
+      verdictEl=el('[data-ins-verdict]'), revLines=el('[data-ins-revlines]'),
+      meEl=el('[data-ins-me]'), boardBox=el('[data-ins-board]'),
+      boardP=el('[data-ins-boardplants]'), boardI=el('[data-ins-boardinsp]'),
+      gaugeSvg=el('[data-ins-gauge]'), eqEl=el('[data-ins-eq]'),
+      mixBox=el('[data-ins-mix]'), mixSvg=el('[data-ins-mixsvg]'),
+      sumBox=el('[data-ins-summary]'), chipsEl=el('[data-ins-chips]');
+    sec.addEventListener('keydown', e=>{ if(navKeys.indexOf(e.key)>-1) e.stopPropagation(); });
+    if(HOST) sec.classList.add('host');
+
+    let pk=localStorage.getItem('ins-pk:'+id);
+    if(!pk){ pk='p'+Math.random().toString(36).slice(2,10); localStorage.setItem('ins-pk:'+id, pk); }
+
+    let state={phase:'idle'}, pick=null, pickRound=-1;
+    const players=()=>state.players||{};
+    const roles=()=>state.roles||{};
+    const R=()=>state.round||0;
+    const NR=()=>state.rounds||5;
+    const cov=()=>state.cov||INS_COV.off;
+    const fine=()=>state.fine||INS_FINE.off;
+    const joined=()=>!HOST && players()[pk]!==undefined;
+    const myRole=()=>roles()[pk]||null;
+    const choicesFor=r=>(state.choices&&state.choices['r'+r])||{};
+    const caughtFor=r=>(state.caught&&state.caught['r'+r])||{};
+    const histFor=r=>(state.hist&&state.hist['r'+r])||null;
+
+    // display names by join order, exactly as the commons game numbers players
+    let nameMap={};
+    function rebuildNames(){
+      const ks=Object.keys(players()).sort((a,b)=>(players()[a]-players()[b])||(a<b?-1:1));
+      nameMap={}; let np=0, ni=0;
+      ks.forEach(function(k){
+        const r=roles()[k];
+        if(r==='i'){ ni++; nameMap[k]='Inspector '+ni; }
+        else { np++; nameMap[k]='Plant '+np; }
+      });
+    }
+    const nameOf=k=>nameMap[k]||'Player';
+    function roleCounts(){
+      let p=0,i=0; Object.keys(players()).forEach(function(k){ if(roles()[k]==='i') i++; else if(roles()[k]==='p') p++; });
+      return {p:p,i:i};
+    }
+
+    // detection probabilities implied by the inspectors' actual mix this round
+    function probs(imix, coverage){
+      const tot=(imix.rand||0)+(imix.big||0)+(imix.comp||0);
+      let q=0,o=0;
+      if(!tot){ ['rand','big','comp'].forEach(function(s){ q+=INS_D[s].quiet/3; o+=INS_D[s].open/3; }); }
+      else ['rand','big','comp'].forEach(function(s){
+        const sh=(imix[s]||0)/tot; q+=sh*INS_D[s].quiet; o+=sh*INS_D[s].open; });
+      return {q:Math.min(1,q*coverage), o:Math.min(1,o*coverage)};
+    }
+    // what a rational plant would do, given those probabilities
+    function bestMove(p, f){
+      const v={comply:INS_PAY.comply, quiet:INS_PAY.quiet-p.q*f, open:INS_PAY.open-p.o*f};
+      let bk='comply'; ['quiet','open'].forEach(function(k){ if(v[k]>v[bk]) bk=k; });
+      return {key:bk, v:v};
+    }
+
+    function totals(){
+      const out={};
+      Object.keys(players()).forEach(function(k){ out[k]={earn:0, caught:0, n:0}; });
+      for(let r=1;r<=R();r++){
+        const h=histFor(r); if(!h) continue;
+        const ch=choicesFor(r), cg=caughtFor(r);
+        Object.keys(players()).forEach(function(k){
+          if(!out[k]) return;
+          const c=ch[k]; if(c===undefined) return;
+          out[k].n++;
+          if(roles()[k]==='i'){
+            const per=(h.perInsp&&h.perInsp[c]!==undefined)?h.perInsp[c]:0;
+            out[k].earn+=50+80*per; out[k].caught+=per;
+          } else {
+            out[k].earn+=INS_PAY[c]-(cg[k]?h.fine:0);
+          }
+        });
+      }
+      return out;
+    }
+
+    // ── the gauge: what each cheat nets you AFTER the expected penalty,
+    // measured against simply complying. Zero is the break-even line, so a bar
+    // to the right means that cheat still pays. Showing BOTH cheats matters:
+    // at the half-measure the open bar falls to zero while the quiet bar is
+    // still positive, which is the whole lesson made visible.
+    function renderGauge(){
+      const h=histFor(R());
+      const imix=h?h.imix:null, c=h?h.cov:cov(), f=h?h.fine:fine();
+      const p=probs(imix||{}, c);
+      const net={quiet:(INS_PAY.quiet-p.q*f)-INS_PAY.comply, open:(INS_PAY.open-p.o*f)-INS_PAY.comply};
+      const best=bestMove(p,f);
+      const W=460, CX=292, TOP=30, BH=28, GAP=20, HALF=150, GUT=8;
+      const max=Math.max(25, Math.abs(net.quiet), Math.abs(net.open))*1.12;
+      const w=v=>Math.max(2,(Math.abs(v)/max)*HALF);
+      const rows=[{k:'quiet', n:'Cheat quietly', v:net.quiet},{k:'open', n:'Cheat openly', v:net.open}];
+      let sv='';
+      rows.forEach(function(o,i){
+        const y=TOP+i*(BH+GAP), pays=o.v>0.5, bw=w(o.v);
+        const x=pays?CX:CX-bw;
+        sv+='<text class="ins-glbl" x="'+GUT+'" y="'+(y+19)+'">'+o.n+'</text>';
+        sv+='<rect class="ins-gbar '+(pays?'gain':'pen over')+'" x="'+x.toFixed(1)+'" y="'+y+'" width="'
+          + bw.toFixed(1)+'" height="'+BH+'" rx="4"/>';
+        // a long bar reaches back under the row label, so its value goes INSIDE
+        const inside = bw>62;
+        const lx = inside ? (pays ? x+bw-8 : x+8) : (pays ? x+bw+7 : x-7);
+        const anch = inside ? (pays?'end':'start') : (pays?'start':'end');
+        sv+='<text class="ins-gnum'+(inside?' in':'')+'" x="'+lx.toFixed(1)+'" y="'+(y+20)
+          + '" text-anchor="'+anch+'">'+(o.v>0?'+':'')+INS_FMT(o.v)+'</text>';
+      });
+      const BOT=TOP+2*BH+GAP;
+      sv+='<path class="ins-gaxis" d="M'+CX+' '+(TOP-9)+' V'+(BOT+8)+'"/>';
+      sv+='<text class="ins-gsub" x="'+CX+'" y="'+(TOP-14)+'" text-anchor="middle">same as complying</text>';
+      sv+='<text class="ins-gsub" x="'+(CX-8)+'" y="'+(BOT+21)+'" text-anchor="end">&#8592; complying pays more</text>';
+      sv+='<text class="ins-gsub" x="'+(CX+8)+'" y="'+(BOT+21)+'">cheating still pays &#8594;</text>';
+      const vTxt={comply:'Complying pays best.', quiet:'Cheating still pays — quietly.', open:'Cheating openly pays best.'}[best.key];
+      sv+='<text class="ins-gverdict" x="'+GUT+'" y="'+(BOT+42)+'" fill="'
+        + (best.key==='comply'?'#2f6b4f':(best.key==='quiet'?'#8a6a2f':'#a1503c'))+'">'+vTxt+'</text>';
+      gaugeSvg.innerHTML=sv;
+      eqEl.innerHTML='Deterrence = chance caught &times; the fine. Quiet cheat: <b>'+INS_PCT(p.q)+'</b> &times; '
+        + INS_FMT(f)+' = <b>'+INS_FMT(p.q*f)+'</b> against '+INS_FMT(INS_GAIN.quiet)+' saved. Open cheat: <b>'
+        + INS_PCT(p.o)+'</b> &times; '+INS_FMT(f)+' = <b>'+INS_FMT(p.o*f)+'</b> against '+INS_FMT(INS_GAIN.open)
+        + ' saved.'+(h?'':' Figures update as soon as a round is played.');
+    }
+
+    // ── round-by-round mix of what plants actually did ──
+    function renderMix(){
+      const rounds=[]; for(let r=1;r<=R();r++){ const h=histFor(r); if(h) rounds.push({r:r,h:h}); }
+      mixBox.hidden = rounds.length===0;
+      if(!rounds.length) return;
+      const W=460, H=150, PADL=8, PADR=8, TOP=10, BASE=112;
+      const n=rounds.length, slot=(W-PADL-PADR)/n, bw=Math.min(52, slot*0.62);
+      let sv='';
+      rounds.forEach(function(o,i){
+        const h=o.h, m=h.mix||{}, tot=(m.comply||0)+(m.quiet||0)+(m.open||0);
+        const x=PADL+i*slot+(slot-bw)/2;
+        if(!tot){
+          sv+='<rect class="ins-seg comply" x="'+x.toFixed(1)+'" y="'+(BASE-2)+'" width="'+bw.toFixed(1)+'" height="2"/>';
+        } else {
+          let y=BASE;
+          [['open',m.open||0],['quiet',m.quiet||0],['comply',m.comply||0]].forEach(function(pair){
+            const cls=pair[0], v=pair[1]; if(!v) return;
+            const hgt=(v/tot)*(BASE-TOP); y-=hgt;
+            sv+='<rect class="ins-seg '+cls+'" x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+hgt.toFixed(1)+'"/>';
+            if(hgt>13) sv+='<text class="ins-mixnum" x="'+(x+bw/2).toFixed(1)+'" y="'+(y+hgt/2+3.5).toFixed(1)+'" text-anchor="middle">'+v+'</text>';
+          });
+        }
+        sv+='<text class="ins-mixlbl" x="'+(x+bw/2).toFixed(1)+'" y="'+(BASE+13)+'" text-anchor="middle">R'+o.r+'</text>';
+        sv+='<text class="ins-mixlbl" x="'+(x+bw/2).toFixed(1)+'" y="'+(BASE+26)+'" text-anchor="middle" fill="#3f5f7a">'
+          + INS_FMT(h.det||0)+'</text>';
+      });
+      sv+='<text class="ins-mixlbl" x="'+PADL+'" y="'+(BASE+39)+'" fill="#3f5f7a">deterrence = chance caught &#215; fine</text>';
+      mixSvg.innerHTML=sv;
+    }
+
+    // ── the round verdict, written to explain WHY it came out that way ──
+    function renderReveal(){
+      const ph=state.phase, r=R(), h=histFor(r);
+      const show=(ph==='reveal'||ph==='final')&&h;
+      revealBox.hidden=!show;
+      if(!show) return;
+      const m=h.mix||{}, im=h.imix||{}, nP=(m.comply||0)+(m.quiet||0)+(m.open||0);
+      const p={q:h.pq, o:h.po};
+      const best=bestMove(p, h.fine);
+      const bestName={comply:'complying', quiet:'cheating quietly', open:'cheating openly'}[best.key];
+      verdictEl.className='ins-verdict '+best.key;
+      const cheats=(m.quiet||0)+(m.open||0), caughtN=(h.caughtQ||0)+(h.caughtO||0);
+      verdictEl.textContent = best.key==='comply'
+        ? 'Round '+r+': complying was the profitable move — and '+(m.comply||0)+' of '+nP+' plants took it.'
+        : 'Round '+r+': '+bestName+' was the profitable move. '+cheats+' of '+nP+' plants cheated; '
+          + caughtN+(caughtN===1?' was':' were')+' caught.';
+      let s='Plants: <strong>'+(m.comply||0)+'</strong> complied, <strong>'+(m.quiet||0)
+        +'</strong> cheated quietly, <strong>'+(m.open||0)+'</strong> cheated openly. '
+        +'Inspectors: <strong>'+(im.rand||0)+'</strong> ran spot checks, <strong>'+(im.big||0)
+        +'</strong> targeted big emitters, <strong>'+(im.comp||0)+'</strong> worked complaints. '
+        +'That mix caught a quiet cheat <strong>'+INS_PCT(h.pq)+'</strong> of the time and an open one <strong>'
+        +INS_PCT(h.po)+'</strong> of the time.';
+      // The explainer has to reason about the move that ACTUALLY won, not just
+      // the open cheat: at the half-measure the open cheat is deterred while
+      // the quiet one is not, and saying "complying won" there would be false.
+      const penO=h.po*h.fine, penQ=h.pq*h.fine;
+      s+='<span class="why"><b>Why it came out that way.</b> ';
+      if(best.key==='open'){
+        s+='Cheating openly saved '+INS_FMT(INS_GAIN.open)+' against an expected penalty of '+INS_PCT(h.po)
+          +' &times; '+INS_FMT(h.fine)+' = <strong>'+INS_FMT(penO)+'</strong>. The penalty was smaller than the saving, '
+          +'so the most blatant cheat was also the most profitable one.';
+      } else if(best.key==='quiet'){
+        s+='The open cheat is now deterred — it saves '+INS_FMT(INS_GAIN.open)+' against an expected penalty of <strong>'
+          +INS_FMT(penO)+'</strong>. But a quiet cheat saves '+INS_FMT(INS_GAIN.quiet)+' against only <strong>'
+          +INS_FMT(penQ)+'</strong>, so cheating did not stop; it <strong>changed form</strong>. '
+          +'Raising the penalty and funding inspections each double deterrence — it takes both to get past '
+          +INS_FMT(INS_GAIN.open)+'.';
+      } else {
+        s+='Both cheats are now deterred: openly saves '+INS_FMT(INS_GAIN.open)+' against <strong>'+INS_FMT(penO)
+          +'</strong> expected, quietly saves '+INS_FMT(INS_GAIN.quiet)+' against <strong>'+INS_FMT(penQ)
+          +'</strong>. Complying is worth more than either — which took the penalty <em>and</em> the odds of being caught.';
+      }
+      s+=' Expected payouts this round: comply '+INS_FMT(best.v.comply)+', cheat quietly '
+        + INS_FMT(best.v.quiet)+', cheat openly '+INS_FMT(best.v.open)+'.</span>';
+      if(ph==='final'){
+        s+='<span class="why"><b>Game over.</b> The scoreboard is below and the summary is on the right.</span>';
+      }
+      revLines.innerHTML=s;
+    }
+
+    function renderMe(){
+      const r=R(), h=histFor(r);
+      if(HOST||!joined()||!h||!(state.phase==='reveal'||state.phase==='final')){ meEl.hidden=true; return; }
+      const c=choicesFor(r)[pk];
+      if(c===undefined){ meEl.hidden=false; meEl.innerHTML='You sat this round out.'; return; }
+      meEl.hidden=false;
+      if(myRole()==='i'){
+        const per=(h.perInsp&&h.perInsp[c]!==undefined)?h.perInsp[c]:0;
+        const nm=(INS_IMOVE.filter(o=>o.k===c)[0]||{}).n||'your strategy';
+        meEl.innerHTML='You ran <b>'+nm+'</b>. It caught <b>'+per.toFixed(2)
+          +'</b> violations per inspector this round — you earned <b>'+INS_FMT(50+80*per)+'</b>.';
+      } else {
+        const got=caughtFor(r)[pk], base=INS_PAY[c];
+        const nm={comply:'complied',quiet:'cheated quietly',open:'cheated openly'}[c];
+        meEl.innerHTML='You <b>'+nm+'</b> for '+INS_FMT(base)+'. '
+          + (got? 'You were <b>caught</b> and fined '+INS_FMT(h.fine)+' — you kept <b>'+INS_FMT(base-h.fine)+'</b>.'
+                : (c==='comply'? 'No fine was possible.' : 'You were <b>not</b> caught — you kept <b>'+INS_FMT(base)+'</b>.'));
+      }
+    }
+
+    function renderBoard(){
+      const ph=state.phase;
+      const show=(ph==='reveal'||ph==='final')&&Object.keys(players()).length>0;
+      boardBox.hidden=!show; if(!show) return;
+      const t=totals();
+      const ks=Object.keys(t);
+      const plants=ks.filter(k=>roles()[k]!=='i').sort((a,b)=>t[b].earn-t[a].earn).slice(0,5);
+      const insp=ks.filter(k=>roles()[k]==='i').sort((a,b)=>t[b].caught-t[a].caught).slice(0,5);
+      const rowsP=plants.map(k=>'<div class="ins-board-row'+(k===pk?' you':'')+'"><span class="nm">'
+        +nameOf(k)+(k===pk?' (you)':'')+'</span><span class="vv">'+INS_FMT(t[k].earn)+'</span></div>').join('');
+      const rowsI=insp.map(k=>'<div class="ins-board-row'+(k===pk?' you':'')+'"><span class="nm">'
+        +nameOf(k)+(k===pk?' (you)':'')+'</span><span class="vv">'+t[k].caught.toFixed(1)+'</span></div>').join('');
+      boardP.innerHTML=rowsP||'<div class="ins-board-empty">No plants yet.</div>';
+      boardI.innerHTML=rowsI||'<div class="ins-board-empty">No inspectors yet.</div>';
+    }
+
+    // ── closing summary: the chips do the teaching, like the commons game ──
+    function renderSummary(){
+      const show=state.phase==='final';
+      sumBox.hidden=!show; if(!show) return;
+      const hs=[]; for(let r=1;r<=R();r++){ const h=histFor(r); if(h) hs.push(h); }
+      if(!hs.length){ chipsEl.innerHTML=''; return; }
+      const chip=(l,v,e,cls)=>'<div class="ins-chip'+(cls?' '+cls:'')+'"><span>'+l+'</span><b>'+v+'</b><em>'+e+'</em></div>';
+      const first=hs[0], last=hs[hs.length-1];
+      const share=h=>{ const m=h.mix||{}, t=(m.comply||0)+(m.quiet||0)+(m.open||0);
+        return t? {cheat:((m.quiet||0)+(m.open||0))/t, open:(m.open||0)/t, quiet:(m.quiet||0)/t} : {cheat:0,open:0,quiet:0}; };
+      const s0=share(first), s1=share(last);
+      let chips='';
+      // 1 — the number the whole game is about
+      chips+=chip('Deterrence, first round to last',
+        INS_FMT(first.det)+' &rarr; '+INS_FMT(last.det),
+        'chance of being caught &times; the fine, against the '+INS_FMT(INS_GAIN.open)+' an open cheat saves');
+      // 2 — did cheating actually stop?
+      chips+=chip('Plants cheating', INS_PCT(s0.cheat)+' &rarr; '+INS_PCT(s1.cheat),
+        'share of plants that cheated in round 1 versus the final round');
+      // 3 — the form of cheating, which is where the half-measure shows up
+      chips+=chip('Of those cheats, done openly', INS_PCT(s0.cheat?s0.open/s0.cheat:0)+' &rarr; '+INS_PCT(s1.cheat?s1.open/s1.cheat:0),
+        'when penalties rise but detection stays low, cheating gets quieter rather than rarer');
+      // 4 — enforcement actually delivered
+      let cheatsAll=0, caughtAll=0, finesAll=0;
+      hs.forEach(function(h){ const m=h.mix||{}; cheatsAll+=(m.quiet||0)+(m.open||0);
+        caughtAll+=(h.caughtQ||0)+(h.caughtO||0); finesAll+=((h.caughtQ||0)+(h.caughtO||0))*h.fine; });
+      chips+=chip('Cheats actually caught', caughtAll+' of '+cheatsAll,
+        INS_FMT(finesAll)+' collected in fines across the whole game');
+      // 5 — the lesson, stated against what this class actually produced
+      const bothOn=last.cov>=INS_COV.on && last.fine>=INS_FINE.on;
+      const oneOn=(last.cov>=INS_COV.on)!==(last.fine>=INS_FINE.on);
+      let key;
+      if(bothOn) key='Only the product deters. Raising the fine and funding inspections each doubled deterrence; neither alone was enough to beat the '+INS_FMT(INS_GAIN.open)+' a cheat saves, and together they were.';
+      else if(oneOn) key='One lever was pulled, and deterrence doubled to '+INS_FMT(last.det)+' — still short of the '+INS_FMT(INS_GAIN.open)+' an open cheat saves. Cheating did not stop; it got quieter. Pull the other lever and the product finally clears the bar.';
+      else key='With neither lever pulled, deterrence stayed at '+INS_FMT(last.det)+' against a '+INS_FMT(INS_GAIN.open)+' payoff for cheating. Adding inspectors or raising fines would each have doubled it — and only doing both clears the bar.';
+      chips+=chip('The point', 'Penalty &times; probability', key, 'key');
+      chipsEl.innerHTML=chips;
+    }
+
+    function renderDecide(){
+      const ph=state.phase, r=R(), role=myRole();
+      const canPlay = !HOST && joined() && ph==='open' && role;
+      decideBox.hidden = !canPlay;
+      roleCard.hidden = HOST || !joined() || !role;
+      if(!roleCard.hidden){
+        roleCard.classList.toggle('insp', role==='i');
+        roleTag.textContent = role==='i' ? 'Your side' : 'Your side';
+        roleName.textContent = role==='i' ? nameOf(pk)+' — enforcement agency' : nameOf(pk)+' — you run a plant';
+        roleDesc.textContent = role==='i'
+          ? 'You cannot inspect everyone. Choose where to put your effort each round, and you score on violations found.'
+          : 'You earn more by cutting cleanup, and you pay a fine if you are caught. You keep whatever you clear.';
+      }
+      if(!canPlay) return;
+      const already=choicesFor(r)[pk];
+      const list = role==='i' ? INS_IMOVE : INS_PMOVE;
+      promptEl.textContent = role==='i'
+        ? 'Round '+r+' — where will you put your inspection effort?'
+        : 'Round '+r+' — how will you run the plant this year? The fine, if you are caught, is '+INS_FMT(fine())+'.';
+      if(pickRound!==r){ pick=null; pickRound=r; }
+      optsEl.innerHTML = list.map(function(o){
+        const on = already!==undefined ? (already===o.k) : (pick===o.k);
+        return '<button class="ins-opt'+(on?(already!==undefined?' chosen':' on'):'')
+          +(already!==undefined?' done':'')+'" type="button" data-k="'+o.k+'">'
+          +'<span class="txt"><b>'+o.n+'</b><em>'+o.d+'</em></span>'
+          +(o.p?'<span class="pay">'+o.p+'</span>':'')+'</button>';
+      }).join('');
+      Array.from(optsEl.querySelectorAll('.ins-opt')).forEach(function(b){
+        b.addEventListener('click', function(){
+          if(choicesFor(R())[pk]!==undefined) return;
+          pick=b.dataset.k; renderDecide();
+        });
+      });
+      submitBtn.hidden = already!==undefined;
+      submitBtn.disabled = !pick;
+      submitBtn.textContent = already!==undefined ? 'Locked in' : 'Lock in my choice';
+    }
+
+    function render(){
+      rebuildNames();
+      const ph=state.phase||'idle', r=R(), rc=roleCounts();
+      joinBox.hidden = HOST || joined() || !(ph==='lobby'||ph==='open');
+      renderDecide(); renderReveal(); renderMe(); renderBoard(); renderGauge(); renderMix(); renderSummary();
+      if(HOST){
+        startBtn.hidden = !(ph==='idle'||ph==='final');
+        if(ph==='final') startBtn.textContent='Start a new game';
+        nextBtn.hidden = !(ph==='lobby' || (ph==='reveal' && r<NR()));
+        if(!nextBtn.hidden) nextBtn.textContent = ph==='lobby' ? 'Begin round 1 ▸' : 'Begin round '+(r+1)+' ▸';
+        endBtn.hidden = ph!=='open';
+        if(!endBtn.hidden) endBtn.textContent='End round '+r+' — reveal ▸';
+        finishBtn.hidden = !(ph==='reveal'||ph==='open');
+        leversBox.hidden = !(ph==='lobby'||ph==='reveal');
+        Array.from(leversBox.querySelectorAll('.ins-lever')).forEach(function(b){
+          b.classList.toggle('on', b.dataset.insLever==='cov' ? cov()>=INS_COV.on : fine()>=INS_FINE.on);
+        });
+        const n=Object.keys(players()).length;
+        if(ph==='idle') statusEl.textContent='Open the lobby once everyone has the deck open.';
+        else if(ph==='lobby') statusEl.textContent=n+' joined — '+rc.p+' plants, '+rc.i+' inspectors. Roles are dealt as students join.';
+        else if(ph==='open'){ const d=Object.keys(choicesFor(r)).length;
+          statusEl.textContent='Round '+r+' — '+d+' of '+n+' locked in. End the round when ready.'; }
+        else if(ph==='reveal') statusEl.textContent = r<NR()
+          ? 'Round '+r+' is on every screen. Pull a lever — or deliberately do not — then begin round '+(r+1)+'.'
+          : 'Final round revealed. End the game to show the summary.';
+        else statusEl.textContent='Game over — the summary is on every screen.';
+      } else {
+        if(ph==='idle') statusEl.textContent='Waiting for the instructor to open the inspection game…';
+        else if(ph==='lobby') statusEl.textContent = joined()
+          ? 'You’re in as '+nameOf(pk)+'. Waiting for round 1…' : 'Tap to join — you will be dealt a side.';
+        else if(ph==='open') statusEl.textContent = !joined() ? 'Round '+r+' is underway — join below to play.'
+          : (choicesFor(r)[pk]!==undefined ? 'Locked in — waiting for the round to close…' : 'Round '+r+' — make your choice.');
+        else if(ph==='reveal') statusEl.textContent='Round '+r+' results are in.';
+        else statusEl.textContent='Game over.';
+      }
+    }
+
+    if(HOST){
+      function fresh(){
+        return {iv:1, phase:'lobby', gameId:Date.now(), rounds:Math.max(2,Math.min(8,parseInt(roundsIn.value,10)||5)),
+                round:0, cov:INS_COV.off, fine:INS_FINE.off, players:{}, roles:{}, choices:{}, caught:{}, hist:{}};
+      }
+      startBtn.addEventListener('click', function(){
+        if(state.phase==='final' && !confirm('Start a new game? This clears the board for everyone.')) return;
+        backend.setDoc('polls', id, fresh());
+      });
+      leversBox.addEventListener('click', function(e){
+        const b=e.target.closest('.ins-lever'); if(!b) return;
+        if(b.dataset.insLever==='cov') backend.mergeDoc('polls', id, {cov: cov()>=INS_COV.on?INS_COV.off:INS_COV.on});
+        else backend.mergeDoc('polls', id, {fine: fine()>=INS_FINE.on?INS_FINE.off:INS_FINE.on});
+      });
+      nextBtn.addEventListener('click', function(){
+        const ph=state.phase;
+        if(!(ph==='lobby'||ph==='reveal')) return;
+        const r=(ph==='lobby')?1:R()+1;
+        if(ph==='lobby' && !Object.keys(players()).length && !confirm('Nobody has joined yet. Start anyway?')) return;
+        backend.mergeDoc('polls', id, {phase:'open', round:r});
+      });
+      function score(final){
+        const r=R(), ch=choicesFor(r), gid=String(state.gameId||0);
+        const mix={comply:0,quiet:0,open:0}, imix={rand:0,big:0,comp:0};
+        Object.keys(ch).forEach(function(k){
+          const c=ch[k];
+          if(roles()[k]==='i'){ if(imix[c]!==undefined) imix[c]++; }
+          else if(mix[c]!==undefined) mix[c]++;
+        });
+        const c=cov(), f=fine(), p=probs(imix, c);
+        // deterministic draws, so every open copy of the deck agrees
+        const caught={}; let cq=0, co=0;
+        const strat=['rand','big','comp'], itot=imix.rand+imix.big+imix.comp;
+        const credit={rand:0,big:0,comp:0};
+        Object.keys(ch).forEach(function(k){
+          if(roles()[k]==='i') return;
+          const mv=ch[k]; if(mv!=='quiet'&&mv!=='open') return;
+          const pr=(mv==='quiet')?p.q:p.o;
+          if(insRnd(gid+':'+r+':'+k+':catch')<pr){
+            caught[k]=1; if(mv==='quiet') cq++; else co++;
+            // attribute the catch to a strategy drawn from the inspectors' mix
+            let u=insRnd(gid+':'+r+':'+k+':who'), acc=0, s=strat[0];
+            if(itot){ for(let i=0;i<3;i++){ acc+=imix[strat[i]]/itot; if(u<=acc){ s=strat[i]; break; } } }
+            else s=strat[Math.floor(u*3)%3];
+            credit[s]++;
+          }
+        });
+        const perInsp={};
+        strat.forEach(function(s){ perInsp[s]= imix[s] ? credit[s]/imix[s] : 0; });
+        const entry={cov:c, fine:f, mix:mix, imix:imix, pq:p.q, po:p.o, det:p.o*f,
+                     caughtQ:cq, caughtO:co, credit:credit, perInsp:perInsp};
+        const upd={phase: final?'final':'reveal', hist:{}, caught:{}};
+        upd.hist['r'+r]=entry; upd.caught['r'+r]=caught;
+        backend.mergeDoc('polls', id, upd);
+      }
+      endBtn.addEventListener('click', function(){ if(state.phase==='open') score(R()>=NR()); });
+      finishBtn.addEventListener('click', function(){
+        if(state.phase==='open') score(true);
+        else if(state.phase==='reveal') backend.mergeDoc('polls', id, {phase:'final'});
+      });
+    } else {
+      joinBtn.addEventListener('click', function(){
+        if(joined() || !(state.phase==='lobby'||state.phase==='open')) return;
+        // roles alternate by join order so the two sides stay balanced without
+        // the host having to sort anybody: even -> plant, odd -> inspector
+        const n=Object.keys(players()).length;
+        backend.mergeDocShard('polls', id, {players:{[pk]:Date.now()}, roles:{[pk]:(n%2===0?'p':'i')}});
+      });
+      submitBtn.addEventListener('click', function(){
+        const r=R();
+        if(state.phase!=='open' || !joined() || !pick || choicesFor(r)[pk]!==undefined) return;
+        const upd={choices:{}}; upd.choices['r'+r]={[pk]:pick};
+        backend.mergeDocShard('polls', id, upd);
+      });
+    }
+    backend.subscribeDoc('polls', id, function(d){ state=(d&&d.iv===1)?d:{phase:'idle'}; render(); });
   });
 
   // ---- wire each live Q&A / open-response feed ------------------------------
